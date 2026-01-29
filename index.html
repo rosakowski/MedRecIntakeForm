@@ -390,11 +390,10 @@
                             <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px; text-align: left;">
                                 <p style="color: #005eb8; font-weight: 600; margin-bottom: 10px;">Instructions for Patient:</p>
                                 <ol style="color: #666; font-size: 14px; line-height: 1.6; margin-left: 20px;">
-                                    <li>Open this form on a tablet or computer</li>
-                                    <li>Click "Enter Patient ID Manually" button below the header</li>
-                                    <li>Enter the Patient ID shown above (or scan the QR code if using a phone)</li>
-                                    <li>Complete the medication intake form</li>
+                                    <li><strong>Using a phone:</strong> Scan the QR code with your camera app - it will open the form automatically</li>
+                                    <li><strong>Using a tablet/computer:</strong> Visit the website and click "Enter Patient ID Manually", then enter the Patient ID shown above</li>
                                 </ol>
+                                <p style="color: #666; font-size: 12px; margin-top: 10px; font-style: italic;">Form URL: <span id="patientUrl"></span></p>
                             </div>
                             <button class="btn print-button no-print" onclick="window.print()">🖨️ Print QR Code & Instructions</button>
                             <button class="btn no-print" onclick="resetQRGeneration()">Generate Another QR Code</button>
@@ -586,15 +585,17 @@
 
         function generateNewPatientQR() {
             const patientId = generateUniqueId();
-            const baseUrl = window.location.href.split('?')[0];
+            
+            // Get the full URL - works for both localhost and GitHub Pages
+            const baseUrl = window.location.origin + window.location.pathname;
             const patientUrl = `${baseUrl}?patient=${patientId}`;
 
-            // Generate QR Code with just the patient ID
+            // Generate QR Code with the full URL so phones can open it directly
             const qrcodeElement = document.getElementById('qrcode');
             if (qrcodeElement) {
                 qrcodeElement.innerHTML = '';
                 new QRCode(qrcodeElement, {
-                    text: patientId,
+                    text: patientUrl,  // Changed back to full URL
                     width: 250,
                     height: 250
                 });
