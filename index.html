@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baylor Scott & White - Medication Intake</title>
+    <title>Hospital Medication Intake</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -366,7 +366,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏥 Baylor Scott & White Institute for Rehabilitation - Frisco</h1>
+            <h1>🏥 Hospital Medication Intake System</h1>
             <p class="subtitle">Medication Intake System</p>
             <div id="manualEntryBtn" style="margin-top: 15px; display: none;">
                 <button class="btn" style="max-width: 300px; margin: 0 auto; display: block;" onclick="showManualEntry()">Enter Patient ID Manually</button>
@@ -773,7 +773,7 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Patient Medications');
             
-            XLSX.writeFile(wb, `BSW_Patient_Medications_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.writeFile(wb, `Patient_Medications_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         // Initialize the app on page load
