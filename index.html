@@ -753,6 +753,14 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+
         .visually-hidden {
             position: absolute;
             width: 1px;
@@ -828,6 +836,13 @@
                 <p class="section-description" style="text-align: center;">Please authenticate to access the administration panel.</p>
                 
                 <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                    <div id="loginError" class="alert alert-danger" style="display: none;">
+                        <span>⚠️</span>
+                        <div>
+                            <strong>Login Incorrect</strong>
+                            <p style="margin-top: 4px;">Invalid Staff ID or PIN. Please try again.</p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="staffId">Staff ID <span class="required">*</span></label>
                         <input type="text" id="staffId" required placeholder="Enter your staff ID" autocomplete="username">
@@ -836,7 +851,7 @@
                         <label for="staffPin">PIN <span class="required">*</span></label>
                         <input type="password" id="staffPin" required placeholder="Enter your PIN" autocomplete="current-password" minlength="4">
                     </div>
-                    <button type="submit" class="btn">🔓 Authenticate</button>
+                    <button type="submit" class="btn" id="loginBtn">🔓 Authenticate</button>
                 </form>
                 
                 <p style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted);">
@@ -1417,6 +1432,11 @@
             
             const staffId = document.getElementById('staffId').value.trim().toUpperCase();
             const pin = document.getElementById('staffPin').value;
+            const loginError = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Hide any previous error
+            loginError.style.display = 'none';
             
             // In production, this would validate against a secure backend
             if (staffId === CONFIG.demoCredentials.staffId && pin === CONFIG.demoCredentials.pin) {
@@ -1424,7 +1444,17 @@
                 AuditLog.log('ADMIN_LOGIN', { staffId });
                 showAdminView();
             } else {
-                alert('Invalid credentials. Please try again.');
+                // Show error message
+                loginError.style.display = 'flex';
+                
+                // Shake animation for feedback
+                loginBtn.style.animation = 'shake 0.5s ease';
+                setTimeout(() => loginBtn.style.animation = '', 500);
+                
+                // Clear PIN field
+                document.getElementById('staffPin').value = '';
+                document.getElementById('staffPin').focus();
+                
                 AuditLog.log('FAILED_LOGIN_ATTEMPT', { staffId });
             }
         }
