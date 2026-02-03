@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://formspree.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; font-src https://fonts.gstatic.com;">
     <title>Hospital Medication Intake</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -823,8 +823,8 @@
         <div class="hipaa-banner no-print" id="hipaaBanner">
             <span class="hipaa-banner-icon">🔒</span>
             <div class="hipaa-banner-content">
-                <h3>HIPAA Compliance Notice</h3>
-                <p>This system uses encrypted session storage with automatic data expiration. Patient data is automatically deleted after the configured retention period. All submissions are logged for audit purposes.</p>
+                <h3>Data Persistence Notice</h3>
+                <p>This system stores data in your browser's local storage with automatic expiration. Patient records are automatically deleted after the configured retention period. Data persists across page reloads but is stored only on this device/browser.</p>
             </div>
         </div>
 
@@ -888,17 +888,25 @@
 
                     <!-- Email Configuration -->
                     <div class="email-config">
-                        <h4>📧 Email Submission Settings</h4>
+                        <h4>📧 Email Submission Settings (Formspree)</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                            To enable email notifications, create a free account at <a href="https://formspree.io" target="_blank" style="color: var(--primary);">formspree.io</a>, 
+                            create a new form, and paste your Form ID below (e.g., "xwkgpqrd").
+                        </p>
                         <div class="form-group" style="margin-bottom: 12px;">
-                            <label for="workEmail">Work Email Address</label>
-                            <input type="email" id="workEmail" placeholder="pharmacy@hospital.org" value="">
+                            <label for="formspreeId">Formspree Form ID</label>
+                            <input type="text" id="formspreeId" placeholder="e.g., xwkgpqrd" style="font-family: 'JetBrains Mono', monospace;">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
+                        <div class="form-group" style="margin-bottom: 8px;">
                             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="checkbox" id="autoEmailEnabled" style="width: auto;">
+                                <input type="checkbox" id="autoEmailEnabled" style="width: auto;" onchange="saveEmailSettings()">
                                 <span>Automatically email completed forms</span>
                             </label>
                         </div>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 8px;" onclick="testEmailConnection()">
+                            🧪 Test Email Connection
+                        </button>
+                        <div id="emailTestResult" style="margin-top: 12px; display: none;"></div>
                     </div>
                     
                     <button class="btn" onclick="generateNewPatientQR()">
@@ -1013,7 +1021,7 @@
 
                         <div class="form-group">
                             <label for="homePharmacy">Home Pharmacy Name <span class="required">*</span></label>
-                            <input type="text" id="homePharmacy" required placeholder="e.g., CVS Pharmacy - Main Street">
+                            <input type="text" id="homePharmacy" required placeholder="e.g., CVS Pharmacy, Walgreens">
                         </div>
 
                         <div class="form-row">
@@ -1028,8 +1036,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="pharmacyAddress">Pharmacy Address</label>
-                            <input type="text" id="pharmacyAddress" placeholder="Street address, City, State ZIP">
+                            <label for="pharmacyAddress">Pharmacy Address <span class="required">*</span></label>
+                            <input type="text" id="pharmacyAddress" required placeholder="Street address, City, State ZIP">
                         </div>
 
                         <div class="form-group">
@@ -1124,8 +1132,9 @@
 
         // ============================================
         // SECURE STORAGE UTILITIES
-        // Using sessionStorage instead of localStorage
-        // Data is cleared when browser tab is closed
+        // Using localStorage with manual expiration management
+        // This persists across page reloads (needed for GitHub Pages)
+        // Records are automatically cleaned up based on expiration time
         // ============================================
         const SecureStorage = {
             // Simple obfuscation (in production, use proper encryption)
@@ -1143,7 +1152,7 @@
             
             save(key, data) {
                 try {
-                    sessionStorage.setItem(key, this.encode(data));
+                    localStorage.setItem(key, this.encode(data));
                     return true;
                 } catch (e) {
                     console.error('Storage error:', e);
@@ -1152,16 +1161,19 @@
             },
             
             load(key) {
-                const encoded = sessionStorage.getItem(key);
+                const encoded = localStorage.getItem(key);
                 return encoded ? this.decode(encoded) : null;
             },
             
             remove(key) {
-                sessionStorage.removeItem(key);
+                localStorage.removeItem(key);
             },
             
             clear() {
-                sessionStorage.clear();
+                localStorage.removeItem(CONFIG.sessionStorageKey);
+                localStorage.removeItem(CONFIG.auditLogKey);
+                localStorage.removeItem('workEmail');
+                localStorage.removeItem('autoEmailEnabled');
             }
         };
 
@@ -1470,6 +1482,7 @@
         function showAdminView() {
             showView('admin');
             document.getElementById('expirationTime').value = state.expirationMinutes.toString();
+            loadEmailSettings();
             displayRecords();
         }
 
@@ -1477,16 +1490,31 @@
         // PATIENT FORM
         // ============================================
         function showPatientForm(patientId) {
+            // Reload state fresh from storage (important for QR code scans opening new tabs)
+            loadState();
+            
             const record = state.allPatientRecords.find(r => r.patientId === patientId);
             
+            // Check if record not found (QR scanned but no record exists - could be different browser/device)
+            if (!record) {
+                showView('patient');
+                document.getElementById('formExpiredAlert').style.display = 'flex';
+                document.getElementById('formExpiredAlert').querySelector('strong').textContent = 'Form Not Found';
+                document.getElementById('formExpiredAlert').querySelector('p').textContent = 
+                    'This Patient ID was not found. The form may have been created on a different device, or the QR code may be invalid. Please request a new QR code from hospital staff.';
+                document.getElementById('patientFormContent').style.display = 'none';
+                document.getElementById('patientIdDisplay').textContent = patientId;
+                return;
+            }
+            
             // Check if already submitted
-            if (record && record.status === 'completed') {
+            if (record.status === 'completed') {
                 showView('success');
                 return;
             }
             
-            // Check if expired
-            if (!record || isRecordExpired(record)) {
+            // Check if marked as expired
+            if (record.status === 'expired') {
                 showView('patient');
                 document.getElementById('formExpiredAlert').style.display = 'flex';
                 document.getElementById('patientFormContent').style.display = 'none';
@@ -1494,9 +1522,32 @@
                 return;
             }
             
+            // Check if time expired (but status not yet updated)
+            if (isRecordExpired(record)) {
+                // Update status to expired
+                const idx = state.allPatientRecords.findIndex(r => r.patientId === patientId);
+                if (idx !== -1) {
+                    state.allPatientRecords[idx].status = 'expired';
+                    saveState();
+                }
+                
+                showView('patient');
+                document.getElementById('formExpiredAlert').style.display = 'flex';
+                document.getElementById('patientFormContent').style.display = 'none';
+                document.getElementById('patientIdDisplay').textContent = patientId;
+                return;
+            }
+            
+            // Form is valid and not expired - show it
             showView('patient');
+            document.getElementById('formExpiredAlert').style.display = 'none';
+            document.getElementById('patientFormContent').style.display = 'block';
+            document.getElementById('patientFormContent').style.opacity = '1';
+            document.getElementById('patientFormContent').style.pointerEvents = 'auto';
             document.getElementById('patientIdDisplay').textContent = patientId;
             document.getElementById('manualEntryBtn').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = '✓ Submit Medication Information';
             
             startFormTimer(record);
             AuditLog.log('FORM_ACCESSED', { patientId });
@@ -1712,82 +1763,137 @@
                 saveState();
                 clearInterval(state.formExpirationTimer);
                 
-                // Send email if configured
-                const workEmail = SecureStorage.load('workEmail');
-                const autoEmailEnabled = SecureStorage.load('autoEmailEnabled');
+                // Send email via Formspree if configured
+                const formspreeId = localStorage.getItem('formspreeId');
+                const autoEmailEnabled = localStorage.getItem('autoEmailEnabled') === 'true';
                 
-                if (workEmail && autoEmailEnabled) {
-                    sendEmailNotification(state.allPatientRecords[recordIndex], workEmail);
+                if (formspreeId && autoEmailEnabled) {
+                    sendFormspreeEmail(state.allPatientRecords[recordIndex], formspreeId);
                 }
                 
                 AuditLog.log('FORM_SUBMITTED', { patientId: state.currentPatientId });
                 
                 showView('success');
                 
-                // Auto-close after showing success
-                setTimeout(() => {
-                    window.close();
-                }, 5000);
+                // Auto-close after showing success (removed - can be annoying)
             }
         }
 
         // ============================================
-        // EMAIL NOTIFICATION
+        // EMAIL SETTINGS
         // ============================================
-        function sendEmailNotification(record, email) {
-            // Create mailto link as fallback (in production, use secure backend API)
-            const subject = encodeURIComponent(`[SECURE] Patient Medication Form - ${record.patientId}`);
-            const body = encodeURIComponent(formatEmailBody(record));
+        function saveEmailSettings() {
+            const formspreeId = document.getElementById('formspreeId').value.trim();
+            const autoEmailEnabled = document.getElementById('autoEmailEnabled').checked;
             
-            // Note: In a real HIPAA-compliant system, you would:
-            // 1. Use a secure backend API to send encrypted emails
-            // 2. Use a HIPAA-compliant email service
-            // 3. Never send PHI via mailto: links
+            localStorage.setItem('formspreeId', formspreeId);
+            localStorage.setItem('autoEmailEnabled', autoEmailEnabled.toString());
             
-            // For demo purposes, we'll just log that email would be sent
-            console.log('Email notification would be sent to:', email);
-            AuditLog.log('EMAIL_NOTIFICATION_TRIGGERED', { patientId: record.patientId, recipient: email });
+            AuditLog.log('EMAIL_SETTINGS_UPDATED', { formspreeId: formspreeId ? 'configured' : 'empty', autoEmailEnabled });
         }
-
-        function formatEmailBody(record) {
-            const meds = record.medications.map(m => 
-                `  - ${m.name}${m.dosage ? ` (${m.dosage})` : ''}${m.frequency ? ` - ${m.frequency}` : ''}`
-            ).join('\n');
+        
+        function loadEmailSettings() {
+            const formspreeId = localStorage.getItem('formspreeId') || '';
+            const autoEmailEnabled = localStorage.getItem('autoEmailEnabled') === 'true';
             
-            return `
-PATIENT MEDICATION INTAKE FORM
-==============================
-Patient ID: ${record.patientId}
-Submitted: ${record.completedAt}
+            const formspreeInput = document.getElementById('formspreeId');
+            const autoEmailCheckbox = document.getElementById('autoEmailEnabled');
+            
+            if (formspreeInput) formspreeInput.value = formspreeId;
+            if (autoEmailCheckbox) autoEmailCheckbox.checked = autoEmailEnabled;
+        }
+        
+        // Save Formspree ID on blur
+        document.addEventListener('DOMContentLoaded', () => {
+            const formspreeInput = document.getElementById('formspreeId');
+            if (formspreeInput) {
+                formspreeInput.addEventListener('blur', saveEmailSettings);
+            }
+        });
 
-PATIENT INFORMATION
--------------------
-Name: ${record.patientName}
-DOB: ${record.dateOfBirth}
-Phone: ${record.patientPhone || 'Not provided'}
-
-PHARMACY INFORMATION
---------------------
-Pharmacy: ${record.homePharmacy}
-Phone: ${record.pharmacyPhone || 'Not provided'}
-Fax: ${record.pharmacyFax || 'Not provided'}
-Address: ${record.pharmacyAddress || 'Not provided'}
-
-MEDICATIONS
------------
-${meds || 'No medications listed'}
-
-ALLERGIES
----------
-${record.allergies}
-
-ADDITIONAL NOTES
-----------------
-${record.additionalNotes || 'None'}
-
----
-This is an automated notification. Data will be automatically purged after ${CONFIG.maxRecordAge / (1000 * 60 * 60)} hours.
-            `.trim();
+        // ============================================
+        // FORMSPREE EMAIL INTEGRATION
+        // ============================================
+        async function sendFormspreeEmail(record, formspreeId) {
+            const formData = {
+                _subject: `[MEDICATION INTAKE] Patient ${record.patientId} - ${record.patientName}`,
+                patient_id: record.patientId,
+                patient_name: record.patientName,
+                date_of_birth: record.dateOfBirth,
+                patient_phone: record.patientPhone || 'Not provided',
+                pharmacy_name: record.homePharmacy,
+                pharmacy_phone: record.pharmacyPhone || 'Not provided',
+                pharmacy_fax: record.pharmacyFax || 'Not provided',
+                pharmacy_address: record.pharmacyAddress || 'Not provided',
+                medications: record.medications.map(m => 
+                    `${m.name}${m.dosage ? ` (${m.dosage})` : ''}${m.frequency ? ` - ${m.frequency}` : ''}`
+                ).join(' | ') || 'No medications listed',
+                allergies: record.allergies,
+                additional_notes: record.additionalNotes || 'None',
+                submitted_at: new Date(record.completedAt).toLocaleString()
+            };
+            
+            try {
+                const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    AuditLog.log('EMAIL_SENT_SUCCESS', { patientId: record.patientId });
+                    console.log('Email sent successfully via Formspree');
+                } else {
+                    throw new Error('Formspree returned error');
+                }
+            } catch (error) {
+                console.error('Failed to send email:', error);
+                AuditLog.log('EMAIL_SEND_FAILED', { patientId: record.patientId, error: error.message });
+            }
+        }
+        
+        async function testEmailConnection() {
+            const formspreeId = document.getElementById('formspreeId').value.trim();
+            const resultDiv = document.getElementById('emailTestResult');
+            
+            if (!formspreeId) {
+                resultDiv.innerHTML = '<div class="alert alert-warning" style="margin: 0;"><span>⚠️</span><div>Please enter a Formspree Form ID first.</div></div>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="alert alert-info" style="margin: 0;"><span>⏳</span><div>Sending test email...</div></div>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`https://formspree.io/f/${formspreeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        _subject: '[TEST] Hospital Medication Intake - Email Test',
+                        message: 'This is a test email from the Hospital Medication Intake System. If you received this, your email integration is working correctly!',
+                        sent_at: new Date().toLocaleString()
+                    })
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<div class="alert alert-success" style="margin: 0;"><span>✓</span><div><strong>Success!</strong> Test email sent. Check your inbox (and spam folder).</div></div>';
+                    saveEmailSettings();
+                    AuditLog.log('EMAIL_TEST_SUCCESS', {});
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger" style="margin: 0;"><span>⚠️</span><div><strong>Failed:</strong> ${error.message}. Please check your Form ID.</div></div>`;
+                AuditLog.log('EMAIL_TEST_FAILED', { error: error.message });
+            }
         }
 
         // ============================================
