@@ -470,19 +470,41 @@ export default async function handler(req, res) {
       const htmlContent = generateEmailHtml(sanitizedData);
       const textContent = generateEmailText(sanitizedData);
       
-      // Send email
-      const emailResult = await resend.emails.send({
+      // Log what we're sending (no PHI)
+      console.log(JSON.stringify({
+        level: 'DEBUG',
+        event: 'SENDING_EMAIL',
+        requestId,
         from: 'onboarding@resend.dev',
         to: CONFIG.EMAIL_RECIPIENT,
-        subject: `Medication Intake - ${sanitizedData.patientName}`,
-        html: htmlContent,
-        text: textContent,
-        tags: [
-          { name: 'type', value: 'medication_intake' },
-          { name: 'source', value: 'web_form' },
-          { name: 'request_id', value: requestId }
-        ]
-      });
+        subjectPreview: `Medication Intake - ${sanitizedData.patientName ? sanitizedData.patientName.substring(0, 10) : 'empty'}`,
+        htmlLength: htmlContent.length,
+        textLength: textContent.length
+      }));
+      
+      // Send email - simplified without tags
+      let emailResult;
+      try {
+        emailResult = await resend.emails.send({
+          from: 'onboarding@resend.dev',
+          to: CONFIG.EMAIL_RECIPIENT,
+          subject: `Medication Intake - ${sanitizedData.patientName || 'Unknown'}`,
+          html: htmlContent,
+          text: textContent
+        });
+      } catch (sendError) {
+        // Log the full Resend error
+        console.log(JSON.stringify({
+          level: 'ERROR',
+          event: 'RESEND_API_ERROR',
+          requestId,
+          error: sendError.message,
+          errorName: sendError.name,
+          errorStatus: sendError.statusCode,
+          errorResponse: sendError.response || null
+        }));
+        throw sendError;
+      }
       
       // Log success (no PHI included)
       console.log(JSON.stringify({
