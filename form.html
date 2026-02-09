@@ -374,6 +374,10 @@
                 </div>
             </div>
 
+            <div style="background: linear-gradient(135deg, #e7f3ff 0%, #cce5ff 100%); border-left: 4px solid var(--primary); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                <strong>Patient ID:</strong> <span id="patientIdDisplay" style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">-</span>
+            </div>
+
             <div class="timer-banner" id="timerBanner">
                 <span class="timer-text">⏱️ Time remaining to complete:</span>
                 <span class="timer-display" id="timerDisplay">30:00</span>
@@ -480,28 +484,60 @@
         let patientId = null;
         let timerInterval = null;
 
-        // API endpoint - Update this after deployment
+        // API endpoint - Uses relative path for same-domain deployment
         const API_ENDPOINT = '/api/submit';
+
+        // Decode session token from URL
+        function decodeSessionToken(token) {
+            try {
+                const decoded = atob(token);
+                const parts = decoded.split(':');
+                if (parts.length >= 4) {
+                    return {
+                        patientId: parts[0],
+                        staffId: parts[1],
+                        timestamp: parseInt(parts[2]),
+                        random: parts[3]
+                    };
+                }
+            } catch (e) {
+                console.error('Failed to decode session token:', e);
+            }
+            return null;
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            patientId = urlParams.get('id');
-            const expMinutes = urlParams.get('exp');
-
-            if (!patientId) {
-                showError('Invalid form link. No patient ID provided.');
+            const sessionToken = urlParams.get('session');
+            
+            if (!sessionToken) {
+                showError('Invalid form link. No session token provided.');
                 return;
             }
 
-            // Set expiration time
-            expirationTime = Date.now() + (parseInt(expMinutes || '30') * 60 * 1000);
+            // Decode session token
+            const sessionData = decodeSessionToken(sessionToken);
+            if (!sessionData) {
+                showError('Invalid session token. Please request a new QR code from hospital staff.');
+                return;
+            }
+
+            patientId = sessionData.patientId;
+            
+            // Calculate expiration (24 hours from generation)
+            const sessionAge = Date.now() - sessionData.timestamp;
+            const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+            expirationTime = sessionData.timestamp + maxAge;
 
             // Check if already expired
-            if (Date.now() >= expirationTime) {
+            if (sessionAge > maxAge) {
                 showError('This form has expired. Please request a new QR code from hospital staff.');
                 return;
             }
+
+            // Display patient ID
+            document.getElementById('patientIdDisplay').textContent = patientId;
 
             // Start timer
             startTimer();
