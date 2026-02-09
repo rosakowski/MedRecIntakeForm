@@ -250,21 +250,11 @@ function generateEmailHtml(data) {
       <div class="field-value">${data.pharmacyPhone || 'N/A'}</div>
     </div>
     
-    <div class="field">
-      <div class="field-label">Pharmacy Fax</div>
-      <div class="field-value">${data.pharmacyFax || 'N/A'}</div>
-    </div>
-    
     <h2 class="section-title">Home Medications (${data.medications ? data.medications.length : 0})</h2>
     
     ${medicationsList}
     
     <h2 class="section-title">Additional Information</h2>
-    
-    <div class="field">
-      <div class="field-label">Known Allergies</div>
-      <div class="field-value">${data.allergies || 'None reported'}</div>
-    </div>
     
     <div class="field">
       <div class="field-label">Additional Notes</div>
@@ -311,7 +301,6 @@ HOME PHARMACY
 Pharmacy Name: ${data.homePharmacy || 'N/A'}
 Pharmacy Address: ${data.pharmacyAddress || 'N/A'}
 Pharmacy Phone: ${data.pharmacyPhone || 'N/A'}
-Pharmacy Fax: ${data.pharmacyFax || 'N/A'}
 
 HOME MEDICATIONS (${data.medications ? data.medications.length : 0})
 ----------------
@@ -319,7 +308,6 @@ ${medicationsList}
 
 ADDITIONAL INFORMATION
 ----------------------
-Known Allergies: ${data.allergies || 'None reported'}
 Additional Notes: ${data.additionalNotes || 'None'}
 
 ---

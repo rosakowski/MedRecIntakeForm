@@ -383,14 +383,26 @@
                 <span class="timer-display" id="timerDisplay">00:30:00</span>
             </div>
 
+            <!-- Decision Tree -->
+            <div class="form-section" style="background: linear-gradient(135deg, #fff8e6 0%, #fff3cd 100%); border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                <h3 style="color: #856404; margin-bottom: 12px;">📋 How to Submit Your Medication List</h3>
+                <p style="color: #856404; font-size: 14px; margin-bottom: 16px;">
+                    <strong>Option 1 (Recommended):</strong> If you have a photo, screenshot, or file of your medication list, 
+                    please email it directly to <a href="mailto:SRHFriscoPharmacy@selectmedical.com" style="color: var(--primary); font-weight: 600;">SRHFriscoPharmacy@selectmedical.com</a>
+                </p>
+                <p style="color: #856404; font-size: 14px; margin-bottom: 16px;">
+                    <strong>Option 2:</strong> If you don't have a file to send, please fill out the form below with your home medication information.
+                </p>
+            </div>
+
             <form id="medicationForm" onsubmit="handleSubmit(event)">
                 <!-- Patient Information -->
                 <div class="form-section">
                     <h3 class="section-title">👤 Patient Information</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="patientName">Full Name <span class="required">*</span></label>
-                            <input type="text" id="patientName" required placeholder="First and Last Name" autocomplete="name">
+                            <label for="patientName">Patient Initials or Room Number <span class="required">*</span></label>
+                            <input type="text" id="patientName" required placeholder="e.g., A.B. or Room 205">
                         </div>
                         <div class="form-group">
                             <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
@@ -410,15 +422,9 @@
                         <label for="homePharmacy">Pharmacy Name <span class="required">*</span></label>
                         <input type="text" id="homePharmacy" required placeholder="e.g., CVS Pharmacy, Walgreens">
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="pharmacyPhone">Pharmacy Phone</label>
-                            <input type="tel" id="pharmacyPhone" placeholder="(555) 123-4567">
-                        </div>
-                        <div class="form-group">
-                            <label for="pharmacyFax">Pharmacy Fax</label>
-                            <input type="tel" id="pharmacyFax" placeholder="(555) 123-4568">
-                        </div>
+                    <div class="form-group">
+                        <label for="pharmacyPhone">Pharmacy Phone</label>
+                        <input type="tel" id="pharmacyPhone" placeholder="(555) 123-4567">
                     </div>
                     <div class="form-group">
                         <label for="pharmacyAddress">Pharmacy Address <span class="required">*</span></label>
@@ -452,16 +458,12 @@
                     <div class="medication-list" id="medicationList"></div>
                 </div>
 
-                <!-- Allergies & Notes -->
+                <!-- Additional Notes -->
                 <div class="form-section">
-                    <h3 class="section-title">⚠️ Allergies & Additional Information</h3>
-                    <div class="form-group">
-                        <label for="allergies">Known Drug Allergies <span class="required">*</span></label>
-                        <textarea id="allergies" required placeholder="List any known drug allergies, or type 'None' if you have no known allergies..."></textarea>
-                    </div>
+                    <h3 class="section-title">📝 Additional Information</h3>
                     <div class="form-group">
                         <label for="additionalNotes">Additional Notes</label>
-                        <textarea id="additionalNotes" placeholder="Any other information the pharmacy should know (medical conditions, special instructions, etc.)..."></textarea>
+                        <textarea id="additionalNotes" placeholder="Any other information the pharmacy should know (medical conditions, special instructions, allergies, etc.)..."></textarea>
                     </div>
                 </div>
 
@@ -653,9 +655,7 @@
                 patientPhone: document.getElementById('patientPhone').value.trim(),
                 homePharmacy: document.getElementById('homePharmacy').value.trim(),
                 pharmacyPhone: document.getElementById('pharmacyPhone').value.trim(),
-                pharmacyFax: document.getElementById('pharmacyFax').value.trim(),
                 pharmacyAddress: document.getElementById('pharmacyAddress').value.trim(),
-                allergies: document.getElementById('allergies').value.trim(),
                 additionalNotes: document.getElementById('additionalNotes').value.trim(),
                 medications
             };
