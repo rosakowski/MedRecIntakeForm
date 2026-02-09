@@ -1,0 +1,332 @@
+MEDREC SECURE INTAKE
+Hospital Leadership Presentation
+
+================================================================================
+SLIDE 1: TITLE
+================================================================================
+
+MedRec Secure Intake
+Zero-Storage Medication Reconciliation System
+
+Presented by: [Director of Pharmacy Name]
+Date: [Date]
+Developed by: Ross Sakowski, PharmD + Astra (AI Partner)
+
+================================================================================
+SLIDE 2: THE PROBLEM
+================================================================================
+
+Current State: Medication Reconciliation Challenges
+
+• 50% of medication errors occur during care transitions
+• Patients often forget or misreport home medications  
+• Pharmacy staff spend excessive time on phone calls verifying meds
+• Delayed medication reconciliation impacts patient safety
+• No secure, efficient way for patients to transmit medication lists
+
+RESULT: Delayed care, potential adverse drug events, frustrated staff
+
+================================================================================
+SLIDE 3: THE SOLUTION
+================================================================================
+
+MedRec Secure Intake
+
+A zero-storage, HIPAA-ready system that allows patients to securely submit their home medication lists directly to pharmacy.
+
+HOW IT WORKS:
+1. Staff generates unique QR code for patient
+2. Patient scans QR → fills secure form (medications, pharmacy info)
+3. Data is emailed directly to pharmacy
+4. ZERO DATA STORAGE — information exists only in the email
+
+KEY INNOVATION: No database, no persistent storage, maximum privacy
+
+================================================================================
+SLIDE 4: SYSTEM ARCHITECTURE
+================================================================================
+
+Technical Stack:
+
+Patient Device → Vercel Cloud (Serverless) → Resend Email API → Pharmacy Inbox
+
+SECURITY FEATURES:
+• End-to-end HTTPS encryption
+• Time-limited QR codes (24-hour expiration)
+• Rate limiting (prevents spam)
+• Input sanitization (prevents injection attacks)
+• No PHI in logs or databases
+• CORS protection
+
+INFRASTRUCTURE:
+• Frontend: Static HTML/CSS/JS (GitHub + Vercel)
+• Backend: Serverless functions (Vercel)
+• Email: Resend API (HIPAA-compliant infrastructure)
+
+================================================================================
+SLIDE 5: USER EXPERIENCE
+================================================================================
+
+FOR STAFF (30 seconds):
+1. Open staff portal
+2. Enter patient initials/room number
+3. Generate & print QR code
+
+FOR PATIENTS (3-5 minutes):
+1. Scan QR with phone camera
+2. Choose: Email photo of med list OR fill form
+3. Enter home medications
+4. Submit → immediate confirmation
+
+DECISION TREE BUILT IN:
+• Patients with photos/docs → Email directly to pharmacy
+• Patients without → Fill structured form
+
+================================================================================
+SLIDE 6: DATA COLLECTED
+================================================================================
+
+PATIENT INFORMATION:
+• Patient initials OR room number
+• Date of birth
+• Phone number (optional)
+
+HOME PHARMACY:
+• Pharmacy name
+• Address
+• Phone number
+
+HOME MEDICATIONS:
+• Medication name
+• Dosage
+• Frequency
+
+ADDITIONAL INFORMATION:
+• Free-text notes (allergies, conditions, instructions)
+
+================================================================================
+SLIDE 7: SECURITY & PRIVACY
+================================================================================
+
+ZERO-STORAGE ARCHITECTURE:
+✓ No database
+✓ No file storage
+✓ No session storage
+✓ No logs containing PHI
+✓ Data exists only in memory during processing
+
+EMAIL SECURITY:
+• TLS encryption for email transmission
+• Resend is SOC2 Type II certified
+• HIPAA-eligible infrastructure
+
+ACCESS CONTROLS:
+• Unique, cryptographically secure session tokens
+• Time-limited access (QR codes expire)
+• Rate limiting per IP address
+
+================================================================================
+SLIDE 8: COMPLIANCE STATUS
+================================================================================
+
+Current State: HIPAA-Ready, Not Yet Compliant
+
+Requirement                    Status      Notes
+---------------------------------------------------------------
+Technical safeguards           ✓ Complete  Encryption, access controls
+Physical safeguards            ✓ Complete  Vercel/Resend SOC2 certified
+Administrative safeguards      ⚠ Pending   Policies, training, risk assessment
+Business Associate Agreement   ⚠ Pending   Required with Resend & hosting
+
+WHAT "HIPAA-READY" MEANS:
+• System implements required technical controls
+• Architecture designed for compliance
+• Ready for formal risk assessment and BAA execution
+
+================================================================================
+SLIDE 9: PATH TO FULL HIPAA COMPLIANCE
+================================================================================
+
+PHASE 1: Legal & Administrative (4-6 weeks)
+• Sign Business Associate Agreement with Resend
+• Complete formal risk assessment
+• Develop security policies and procedures
+• Create incident response plan
+
+PHASE 2: Administrative Safeguards (2-3 weeks)
+• Designate Security Officer
+• Staff training program
+• Access control procedures
+• Audit log review schedule
+
+PHASE 3: IT Security Review (2-3 weeks)
+• Penetration testing
+• Security audit
+• Vulnerability scanning
+• Final approval from IT Security
+
+TIMELINE TO PRODUCTION: 8-12 weeks
+
+================================================================================
+SLIDE 10: COST ANALYSIS
+================================================================================
+
+CURRENT PROTOTYPE COSTS:
+Item                              Cost
+------------------------------------------------
+Resend (100 emails/day free)      $0
+Vercel (free tier)                $0
+Domain                            $0 (uses vercel.app)
+TOTAL                             $0
+
+PRODUCTION COSTS (Estimated):
+Item                              Cost
+------------------------------------------------
+Resend paid plan (BAA required)   $20-100/month
+Vercel Pro OR self-hosted         $0-20/month
+Custom domain                     $12/year
+Security audit (one-time)         $5,000-15,000
+TOTAL MONTHLY                     $20-120
+
+================================================================================
+SLIDE 11: RISK ASSESSMENT
+================================================================================
+
+IDENTIFIED RISKS & MITIGATIONS:
+
+Risk                      Likelihood   Impact   Mitigation
+------------------------------------------------------------------------
+Email interception        Low          High     TLS encryption, BAA
+Data breach (server)      Low          High     Zero-storage — no data to steal
+Unauthorized access       Low          Medium   Time-limited QR codes
+Patient error             Medium       Medium   Standard verification process
+System downtime           Low          Low      Fallback to current process
+
+OVERALL RISK LEVEL: Low
+
+================================================================================
+SLIDE 12: PILOT PROGRAM PROPOSAL
+================================================================================
+
+RECOMMENDED APPROACH:
+
+PHASE 1: Internal Testing (2 weeks)
+• IT Security review
+• Pharmacy staff training
+• Test with 10-20 mock patients
+• Gather feedback
+
+PHASE 2: Limited Pilot (4 weeks)
+• One unit or service line
+• 50-100 patients
+• Daily monitoring and feedback
+• Refine workflows
+
+PHASE 3: Department Rollout (4 weeks)
+• Full pharmacy department
+• All appropriate admissions
+• Full HIPAA compliance documentation
+
+PHASE 4: Hospital-Wide (Ongoing)
+• Expand to other departments
+• Continuous monitoring and improvement
+
+================================================================================
+SLIDE 13: SUCCESS METRICS
+================================================================================
+
+KEY PERFORMANCE INDICATORS (KPIs):
+
+Metric                              Current     Target      Measurement
+--------------------------------------------------------------------------
+Time to med reconciliation          4-6 hours   <2 hours    Timestamp analysis
+Pharmacy phone calls for meds       20/day      <5/day      Call log review
+Patient med list accuracy           Unknown     >95%        Audit sampling
+Staff satisfaction                  Unknown     >4/5        Survey
+Patient satisfaction                N/A         >4/5        Survey
+
+================================================================================
+SLIDE 14: FUTURE ENHANCEMENTS
+================================================================================
+
+VERSION 2.0 ROADMAP:
+
+• EHR Integration — Direct API connection to Epic/Cerner
+• Photo Upload — Allow patients to attach medication photos
+• Barcode Scanning — Scan prescription bottles via camera
+• Multi-Language Support — Spanish, Vietnamese, etc.
+• Real-Time Notifications — SMS alerts to pharmacy when submitted
+• Analytics Dashboard — Track submission rates, completion times
+• Digital Signature — Patient attestation of accuracy
+
+LONG-TERM VISION:
+Integration with hospital patient portal for seamless medication management
+
+================================================================================
+SLIDE 15: QUESTIONS FOR IT/LEADERSHIP
+================================================================================
+
+TECHNICAL QUESTIONS:
+1. Can we add selectmedical.com to Resend for verified domain sending?
+2. Do we require on-premise hosting, or is cloud acceptable with BAA?
+3. What is our timeline for security review and penetration testing?
+
+OPERATIONAL QUESTIONS:
+1. Which units/services should pilot this system?
+2. What is our change management process for new pharmacy workflows?
+3. How do we handle patient education about the new system?
+
+COMPLIANCE QUESTIONS:
+1. Who is our designated Security Officer for this project?
+2. What is our standard process for HIPAA risk assessments?
+3. Do we have preferred vendors for security audits?
+
+================================================================================
+SLIDE 16: RECOMMENDATION
+================================================================================
+
+IMMEDIATE NEXT STEPS:
+
+1. Approve pilot program for limited testing
+2. Assign IT Security liaison for compliance review
+3. Schedule BAA execution with Resend
+4. Develop training materials for pharmacy staff
+5. Set pilot timeline and success metrics
+
+WHY NOW:
+• Proven technical solution ready for testing
+• Low cost, high potential impact
+• Aligns with patient safety initiatives
+• Positions hospital as innovation leader
+
+THE ASK:
+Approval to proceed with Phase 1 (internal testing) while completing full HIPAA compliance documentation.
+
+================================================================================
+SLIDE 17: CONTACT & RESOURCES
+================================================================================
+
+PROJECT INFORMATION:
+• GitHub Repository: github.com/rosakowski/MedRecIntakeForm
+• Live Demo: medrec-intake-secure.vercel.app
+• Documentation: Complete HIPAA compliance checklist available
+
+TEAM:
+• Ross Sakowski, PharmD: [Email]
+• Director of Pharmacy: [Email]
+• Astra (Technical Support): heyitsmeastra@gmail.com
+
+QUESTIONS?
+
+================================================================================
+APPENDIX: ADDITIONAL RESOURCES
+================================================================================
+
+Available in GitHub repository:
+• System architecture diagram
+• Data flow chart
+• Security control matrix
+• HIPAA compliance checklist
+• API endpoint documentation
+• Deployment instructions
+• Incident response procedures
