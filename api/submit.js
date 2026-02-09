@@ -506,6 +506,18 @@ export default async function handler(req, res) {
         throw sendError;
       }
       
+      // Check if Resend returned an error
+      if (emailResult.error) {
+        console.log(JSON.stringify({
+          level: 'ERROR',
+          event: 'RESEND_ERROR_RESPONSE',
+          requestId,
+          error: emailResult.error.message || emailResult.error,
+          errorName: emailResult.error.name
+        }));
+        throw new Error(emailResult.error.message || 'Resend API error');
+      }
+      
       // Log success (no PHI included)
       console.log(JSON.stringify({
         level: 'INFO',
@@ -514,14 +526,15 @@ export default async function handler(req, res) {
         timestamp: new Date().toISOString(),
         ipHash: hashIp(clientIp),
         userAgent: userAgent.substring(0, 50), // Truncated for privacy
-        emailId: emailResult.id,
+        emailId: emailResult.data?.id || 'unknown',
         remaining: rateLimit.remaining
       }));
       
-      // Return success response
+      // Return success response with email ID
       return res.status(200).json({
         success: true,
         message: 'Form submitted successfully',
+        emailId: emailResult.data?.id,
         requestId,
         remainingSubmissions: rateLimit.remaining
       });
