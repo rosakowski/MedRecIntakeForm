@@ -460,7 +460,6 @@ export default async function handler(req, res) {
         subject: `Medication Intake - ${sanitizedData.patientName}`,
         html: htmlContent,
         text: textContent,
-        reply_to: sanitizedData.email || undefined,
         tags: [
           { name: 'type', value: 'medication_intake' },
           { name: 'source', value: 'web_form' },
@@ -496,12 +495,14 @@ export default async function handler(req, res) {
         requestId,
         timestamp: new Date().toISOString(),
         error: error.message,
+        errorName: error.name,
         ipHash: hashIp(clientIp)
       }));
       
+      // Return detailed error for debugging
       return res.status(500).json({
         success: false,
-        error: 'Failed to process submission. Please try again.',
+        error: error.message || 'Failed to process submission. Please try again.',
         requestId
       });
     }
