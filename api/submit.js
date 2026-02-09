@@ -168,6 +168,20 @@ function isValidEmail(email) {
 function generateEmailHtml(data) {
   const timestamp = new Date().toISOString();
   
+  // Format medications list
+  const medicationsList = data.medications && data.medications.length > 0
+    ? data.medications.map((med, i) => `
+      <div class="field">
+        <div class="field-label">Medication ${i + 1}</div>
+        <div class="field-value">
+          <strong>${med.name || 'N/A'}</strong><br>
+          Dosage: ${med.dosage || 'N/A'}<br>
+          Frequency: ${med.frequency || 'N/A'}
+        </div>
+      </div>
+    `).join('')
+    : '<div class="field"><div class="field-label">Medications</div><div class="field-value">No medications reported</div></div>';
+  
   return `
 <!DOCTYPE html>
 <html>
@@ -188,7 +202,7 @@ function generateEmailHtml(data) {
 </head>
 <body>
   <div class="header">
-    <h1>🏥 Medication Intake Form</h1>
+    <h1>🏥 Home Medication Intake</h1>
     <p>Select Medical - SRH Frisco Pharmacy</p>
   </div>
   
@@ -198,6 +212,11 @@ function generateEmailHtml(data) {
     </div>
     
     <h2 class="section-title">Patient Information</h2>
+    
+    <div class="field">
+      <div class="field-label">Patient ID</div>
+      <div class="field-value">${data.patientId || 'N/A'}</div>
+    </div>
     
     <div class="field">
       <div class="field-label">Patient Name</div>
@@ -210,41 +229,35 @@ function generateEmailHtml(data) {
     </div>
     
     <div class="field">
-      <div class="field-label">Medical Record Number</div>
-      <div class="field-value">${data.mrn || 'N/A'}</div>
+      <div class="field-label">Patient Phone</div>
+      <div class="field-value">${data.patientPhone || 'N/A'}</div>
+    </div>
+    
+    <h2 class="section-title">Home Pharmacy</h2>
+    
+    <div class="field">
+      <div class="field-label">Pharmacy Name</div>
+      <div class="field-value">${data.homePharmacy || 'N/A'}</div>
     </div>
     
     <div class="field">
-      <div class="field-label">Contact Phone</div>
-      <div class="field-value">${data.phone || 'N/A'}</div>
-    </div>
-    
-    <h2 class="section-title">Medication Information</h2>
-    
-    <div class="field">
-      <div class="field-label">Medication Name</div>
-      <div class="field-value">${data.medicationName || 'N/A'}</div>
+      <div class="field-label">Pharmacy Address</div>
+      <div class="field-value">${data.pharmacyAddress || 'N/A'}</div>
     </div>
     
     <div class="field">
-      <div class="field-label">Dosage</div>
-      <div class="field-value">${data.dosage || 'N/A'}</div>
+      <div class="field-label">Pharmacy Phone</div>
+      <div class="field-value">${data.pharmacyPhone || 'N/A'}</div>
     </div>
     
     <div class="field">
-      <div class="field-label">Frequency</div>
-      <div class="field-value">${data.frequency || 'N/A'}</div>
+      <div class="field-label">Pharmacy Fax</div>
+      <div class="field-value">${data.pharmacyFax || 'N/A'}</div>
     </div>
     
-    <div class="field">
-      <div class="field-label">Prescribing Physician</div>
-      <div class="field-value">${data.prescribingPhysician || 'N/A'}</div>
-    </div>
+    <h2 class="section-title">Home Medications (${data.medications ? data.medications.length : 0})</h2>
     
-    <div class="field">
-      <div class="field-label">Prescription Date</div>
-      <div class="field-value">${data.prescriptionDate || 'N/A'}</div>
-    </div>
+    ${medicationsList}
     
     <h2 class="section-title">Additional Information</h2>
     
@@ -254,13 +267,8 @@ function generateEmailHtml(data) {
     </div>
     
     <div class="field">
-      <div class="field-label">Current Medications</div>
-      <div class="field-value">${data.currentMedications || 'None reported'}</div>
-    </div>
-    
-    <div class="field">
-      <div class="field-label">Special Instructions</div>
-      <div class="field-value">${data.specialInstructions || 'None'}</div>
+      <div class="field-label">Additional Notes</div>
+      <div class="field-value">${data.additionalNotes || 'None'}</div>
     </div>
   </div>
   
@@ -278,7 +286,14 @@ function generateEmailHtml(data) {
 function generateEmailText(data) {
   const timestamp = new Date().toISOString();
   
-  return `MEDICATION INTAKE FORM SUBMISSION
+  // Format medications list
+  const medicationsList = data.medications && data.medications.length > 0
+    ? data.medications.map((med, i) => 
+        `${i + 1}. ${med.name || 'N/A'} - Dosage: ${med.dosage || 'N/A'} - Frequency: ${med.frequency || 'N/A'}`
+      ).join('\n')
+    : 'No medications reported';
+  
+  return `HOME MEDICATION INTAKE FORM
 Select Medical - SRH Frisco Pharmacy
 ================================
 
@@ -286,24 +301,26 @@ Submission Time: ${timestamp}
 
 PATIENT INFORMATION
 -------------------
+Patient ID: ${data.patientId || 'N/A'}
 Patient Name: ${data.patientName || 'N/A'}
 Date of Birth: ${data.dateOfBirth || 'N/A'}
-Medical Record Number: ${data.mrn || 'N/A'}
-Contact Phone: ${data.phone || 'N/A'}
+Patient Phone: ${data.patientPhone || 'N/A'}
 
-MEDICATION INFORMATION
-----------------------
-Medication Name: ${data.medicationName || 'N/A'}
-Dosage: ${data.dosage || 'N/A'}
-Frequency: ${data.frequency || 'N/A'}
-Prescribing Physician: ${data.prescribingPhysician || 'N/A'}
-Prescription Date: ${data.prescriptionDate || 'N/A'}
+HOME PHARMACY
+-------------
+Pharmacy Name: ${data.homePharmacy || 'N/A'}
+Pharmacy Address: ${data.pharmacyAddress || 'N/A'}
+Pharmacy Phone: ${data.pharmacyPhone || 'N/A'}
+Pharmacy Fax: ${data.pharmacyFax || 'N/A'}
+
+HOME MEDICATIONS (${data.medications ? data.medications.length : 0})
+----------------
+${medicationsList}
 
 ADDITIONAL INFORMATION
 ----------------------
 Known Allergies: ${data.allergies || 'None reported'}
-Current Medications: ${data.currentMedications || 'None reported'}
-Special Instructions: ${data.specialInstructions || 'None'}
+Additional Notes: ${data.additionalNotes || 'None'}
 
 ---
 This is an automated message from the Secure Medication Intake System.
@@ -418,7 +435,7 @@ export default async function handler(req, res) {
       const body = req.body;
       
       // Validate required fields
-      const requiredFields = ['patientName', 'dateOfBirth', 'medicationName', 'dosage'];
+      const requiredFields = ['patientName', 'dateOfBirth', 'homePharmacy', 'allergies'];
       const missingFields = validateRequiredFields(body, requiredFields);
       
       if (missingFields.length > 0) {
@@ -455,7 +472,7 @@ export default async function handler(req, res) {
       
       // Send email
       const emailResult = await resend.emails.send({
-        from: 'MedRec System <onboarding@resend.dev>',
+        from: 'onboarding@resend.dev',
         to: CONFIG.EMAIL_RECIPIENT,
         subject: `Medication Intake - ${sanitizedData.patientName}`,
         html: htmlContent,
@@ -496,6 +513,8 @@ export default async function handler(req, res) {
         timestamp: new Date().toISOString(),
         error: error.message,
         errorName: error.name,
+        errorStack: error.stack,
+        errorDetails: error.error || error.statusCode || null,
         ipHash: hashIp(clientIp)
       }));
       
@@ -503,6 +522,7 @@ export default async function handler(req, res) {
       return res.status(500).json({
         success: false,
         error: error.message || 'Failed to process submission. Please try again.',
+        errorDetails: error.error || null,
         requestId
       });
     }
