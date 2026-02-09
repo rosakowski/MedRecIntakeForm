@@ -24,7 +24,7 @@ import { Resend } from 'resend';
 // =============================================================================
 const CONFIG = {
   // Primary recipient - verified in Resend dashboard
-  EMAIL_RECIPIENT: process.env.RECIPIENT_EMAIL || 'SRHFriscoPharmacy@selectmedical.com',
+  EMAIL_RECIPIENT: 'heyitsmeastra@gmail.com',  // Temporary test email
   
   // Rate limiting: Max submissions per IP per window
   RATE_LIMIT_MAX: parseInt(process.env.RATE_LIMIT_MAX || '5'),
