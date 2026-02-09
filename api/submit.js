@@ -42,7 +42,7 @@ const CONFIG = {
 
 // =============================================================================
 // RATE LIMITING - Simple in-memory store (sufficient for serverless deployment)
- * Note: Rate limits reset on function cold start (acceptable for this use case)
+// Note: Rate limits reset on function cold start (acceptable for this use case)
 // =============================================================================
 const rateLimitStore = new Map();
 
