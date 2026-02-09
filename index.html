@@ -428,16 +428,6 @@
           </div>
           
           <div class="form-group">
-            <label for="department">Department</label>
-            <select id="department">
-              <option value="pharmacy">Pharmacy</option>
-              <option value="outpatient">Outpatient Services</option>
-              <option value="inpatient">Inpatient Services</option>
-              <option value="emergency">Emergency Department</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
             <label for="staffId">Staff ID</label>
             <input type="text" id="staffId" placeholder="Your Staff ID" required>
           </div>
@@ -602,7 +592,6 @@
       e.preventDefault();
       
       const patientId = document.getElementById('patientId').value.trim();
-      const department = document.getElementById('department').value;
       const staffId = document.getElementById('staffId').value.trim();
       
       if (!staffId) {
@@ -615,7 +604,7 @@
       
       // Build form URL with session parameters
       const baseUrl = window.location.origin + '/form.html';
-      const formUrl = `${baseUrl}?session=${sessionToken}&dept=${department}&ts=${Date.now()}`;
+      const formUrl = `${baseUrl}?session=${sessionToken}&ts=${Date.now()}`;
       
       // Clear previous QR code
       document.getElementById('qrcode').innerHTML = '';

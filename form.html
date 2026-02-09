@@ -380,7 +380,7 @@
 
             <div class="timer-banner" id="timerBanner">
                 <span class="timer-text">⏱️ Time remaining to complete:</span>
-                <span class="timer-display" id="timerDisplay">30:00</span>
+                <span class="timer-display" id="timerDisplay">00:30:00</span>
             </div>
 
             <form id="medicationForm" onsubmit="handleSubmit(event)">
@@ -567,10 +567,11 @@
                 return;
             }
 
-            const minutes = Math.floor(remaining / 60000);
+            const hours = Math.floor(remaining / 3600000);
+            const minutes = Math.floor((remaining % 3600000) / 60000);
             const seconds = Math.floor((remaining % 60000) / 1000);
             document.getElementById('timerDisplay').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
             // Warning color when less than 5 minutes
             if (remaining < 5 * 60 * 1000) {
@@ -685,7 +686,7 @@
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('Unable to submit form. Please try again or ask staff for assistance.');
+                alert('Error: ' + error.message + '\n\nPlease try again or ask staff for assistance.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '✓ Submit Medication Information';
             }

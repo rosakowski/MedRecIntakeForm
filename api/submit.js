@@ -455,7 +455,7 @@ export default async function handler(req, res) {
       
       // Send email
       const emailResult = await resend.emails.send({
-        from: 'MedRec System <medrec@selectmedical.com>',
+        from: 'MedRec System <onboarding@resend.dev>',
         to: CONFIG.EMAIL_RECIPIENT,
         subject: `Medication Intake - ${sanitizedData.patientName}`,
         html: htmlContent,
