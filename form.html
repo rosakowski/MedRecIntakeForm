@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://*.vercel.app;">
+    <title>Home Medication Information</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f4c81;
+            --primary-dark: #0a3259;
+            --accent: #00a896;
+            --success: #2a9d8f;
+            --danger: #dc3545;
+            --warning: #f4a261;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: linear-gradient(145deg, var(--primary) 0%, var(--accent) 100%);
+            min-height: 100vh;
+            padding: 24px;
+            color: var(--text-primary);
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .header {
+            background: var(--card-bg);
+            padding: 24px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 { color: var(--primary); font-size: 24px; font-weight: 700; }
+
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .security-banner {
+            background: linear-gradient(135deg, #e7f3ff 0%, #cce5ff 100%);
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .security-banner-icon { font-size: 24px; }
+
+        .security-banner-content h3 {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .security-banner-content p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .timer-banner {
+            background: linear-gradient(135deg, #fff8e6 0%, #fff3cd 100%);
+            border: 1px solid #ffc107;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .timer-banner.expired {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: var(--danger);
+        }
+
+        .timer-text { font-weight: 600; color: #856404; }
+        .timer-banner.expired .timer-text { color: #721c24; }
+
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .form-section { margin-bottom: 32px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .required { color: var(--danger); margin-left: 2px; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: #fafbfc;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Medication Input */
+        .medication-input {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .medication-input {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .medication-input input {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 76, 129, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent) 0%, #009688 100%);
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #b02a37 100%);
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #238b7e 100%);
+            font-size: 16px;
+            padding: 16px 32px;
+            width: 100%;
+        }
+
+        .medication-list { margin-bottom: 20px; }
+
+        .medication-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .medication-info { flex: 1; }
+
+        .medication-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .medication-details {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff8e6 0%, #fff3cd 100%);
+            border-color: var(--warning);
+            color: #856404;
+        }
+
+        .success-view {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--success) 0%, #238b7e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+        }
+
+        .success-view h2 {
+            color: var(--success);
+            margin-bottom: 16px;
+        }
+
+        .error-view {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--danger) 0%, #b02a37 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+        }
+
+        .hidden { display: none !important; }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏥 Home Medication Information</h1>
+            <p class="subtitle">Please provide your home medications and pharmacy details</p>
+        </header>
+
+        <!-- Error View -->
+        <div id="errorView" class="form-container hidden">
+            <div class="error-view">
+                <div class="error-icon">⚠️</div>
+                <h2 style="color: var(--danger); margin-bottom: 16px;">Form Not Available</h2>
+                <p id="errorMessage" style="color: var(--text-secondary); margin-bottom: 24px;">
+                    This form link is invalid or has expired.
+                </p>
+                <p style="font-size: 14px; color: var(--text-muted);">
+                    Please ask hospital staff for a new QR code.
+                </p>
+            </div>
+        </div>
+
+        <!-- Success View -->
+        <div id="successView" class="form-container hidden">
+            <div class="success-view">
+                <div class="success-icon">✓</div>
+                <h2>Thank You!</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                    Your medication information has been securely transmitted to the pharmacy team.
+                </p>
+                <div class="alert alert-warning" style="text-align: left; margin-top: 24px;">
+                    <strong>What's next?</strong><br>
+                    A pharmacist will review your home medications and compare them with what the hospital has ordered. 
+                    They may contact you or your home pharmacy if they have questions.
+                </div>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 24px;">
+                    You may now close this window.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form View -->
+        <div id="formView" class="form-container">
+            <div class="security-banner">
+                <span class="security-banner-icon">🔒</span>
+                <div class="security-banner-content">
+                    <h3>Secure Form</h3>
+                    <p>Your information is encrypted and sent directly to the hospital pharmacy. No data is stored on our servers.</p>
+                </div>
+            </div>
+
+            <div class="timer-banner" id="timerBanner">
+                <span class="timer-text">⏱️ Time remaining to complete:</span>
+                <span class="timer-display" id="timerDisplay">30:00</span>
+            </div>
+
+            <form id="medicationForm" onsubmit="handleSubmit(event)">
+                <!-- Patient Information -->
+                <div class="form-section">
+                    <h3 class="section-title">👤 Patient Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientName">Full Name <span class="required">*</span></label>
+                            <input type="text" id="patientName" required placeholder="First and Last Name" autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                            <input type="date" id="dateOfBirth" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">Phone Number</label>
+                        <input type="tel" id="patientPhone" placeholder="(555) 123-4567" autocomplete="tel">
+                    </div>
+                </div>
+
+                <!-- Pharmacy Information -->
+                <div class="form-section">
+                    <h3 class="section-title">🏪 Home Pharmacy</h3>
+                    <div class="form-group">
+                        <label for="homePharmacy">Pharmacy Name <span class="required">*</span></label>
+                        <input type="text" id="homePharmacy" required placeholder="e.g., CVS Pharmacy, Walgreens">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pharmacyPhone">Pharmacy Phone</label>
+                            <input type="tel" id="pharmacyPhone" placeholder="(555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label for="pharmacyFax">Pharmacy Fax</label>
+                            <input type="tel" id="pharmacyFax" placeholder="(555) 123-4568">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pharmacyAddress">Pharmacy Address <span class="required">*</span></label>
+                        <input type="text" id="pharmacyAddress" required placeholder="Street address, City, State ZIP">
+                    </div>
+                </div>
+
+                <!-- Medications -->
+                <div class="form-section">
+                    <h3 class="section-title">💊 Home Medications</h3>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
+                        Add all medications you take at home, including prescriptions, over-the-counter, vitamins, and supplements.
+                    </p>
+
+                    <div class="medication-input">
+                        <div>
+                            <label style="font-size: 13px;">Medication Name</label>
+                            <input type="text" id="medName" placeholder="e.g., Lisinopril">
+                        </div>
+                        <div>
+                            <label style="font-size: 13px;">Dosage</label>
+                            <input type="text" id="medDosage" placeholder="e.g., 10mg">
+                        </div>
+                        <div>
+                            <label style="font-size: 13px;">Frequency</label>
+                            <input type="text" id="medFrequency" placeholder="e.g., Once daily">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addMedication()">Add</button>
+                    </div>
+
+                    <div class="medication-list" id="medicationList"></div>
+                </div>
+
+                <!-- Allergies & Notes -->
+                <div class="form-section">
+                    <h3 class="section-title">⚠️ Allergies & Additional Information</h3>
+                    <div class="form-group">
+                        <label for="allergies">Known Drug Allergies <span class="required">*</span></label>
+                        <textarea id="allergies" required placeholder="List any known drug allergies, or type 'None' if you have no known allergies..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalNotes">Additional Notes</label>
+                        <textarea id="additionalNotes" placeholder="Any other information the pharmacy should know (medical conditions, special instructions, etc.)..."></textarea>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>Important:</strong> Please verify all information is accurate before submitting. 
+                    This information will be used by your healthcare team for medication reconciliation.
+                </div>
+
+                <button type="submit" class="btn btn-success" id="submitBtn">
+                    ✓ Submit Medication Information
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let medications = [];
+        let expirationTime = null;
+        let patientId = null;
+        let timerInterval = null;
+
+        // API endpoint - Update this after deployment
+        const API_ENDPOINT = '/api/submit';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            patientId = urlParams.get('id');
+            const expMinutes = urlParams.get('exp');
+
+            if (!patientId) {
+                showError('Invalid form link. No patient ID provided.');
+                return;
+            }
+
+            // Set expiration time
+            expirationTime = Date.now() + (parseInt(expMinutes || '30') * 60 * 1000);
+
+            // Check if already expired
+            if (Date.now() >= expirationTime) {
+                showError('This form has expired. Please request a new QR code from hospital staff.');
+                return;
+            }
+
+            // Start timer
+            startTimer();
+        });
+
+        function showError(message) {
+            document.getElementById('formView').classList.add('hidden');
+            document.getElementById('successView').classList.add('hidden');
+            document.getElementById('errorView').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function startTimer() {
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const remaining = expirationTime - Date.now();
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').textContent = 'EXPIRED';
+                document.getElementById('timerBanner').classList.add('expired');
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').textContent = 'Form Expired';
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Warning color when less than 5 minutes
+            if (remaining < 5 * 60 * 1000) {
+                document.getElementById('timerBanner').style.background = 
+                    'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
+                document.getElementById('timerBanner').style.borderColor = '#dc3545';
+            }
+        }
+
+        function addMedication() {
+            const name = document.getElementById('medName').value.trim();
+            const dosage = document.getElementById('medDosage').value.trim();
+            const frequency = document.getElementById('medFrequency').value.trim();
+
+            if (!name) {
+                document.getElementById('medName').focus();
+                return;
+            }
+
+            medications.push({ name, dosage, frequency });
+            
+            document.getElementById('medName').value = '';
+            document.getElementById('medDosage').value = '';
+            document.getElementById('medFrequency').value = '';
+            document.getElementById('medName').focus();
+
+            renderMedications();
+        }
+
+        function removeMedication(index) {
+            medications.splice(index, 1);
+            renderMedications();
+        }
+
+        function renderMedications() {
+            const list = document.getElementById('medicationList');
+            
+            if (medications.length === 0) {
+                list.innerHTML = '';
+                return;
+            }
+
+            list.innerHTML = medications.map((med, index) => `
+                <div class="medication-item">
+                    <div class="medication-info">
+                        <div class="medication-name">${escapeHtml(med.name)}</div>
+                        <div class="medication-details">
+                            ${med.dosage ? `Dosage: ${escapeHtml(med.dosage)}` : ''}
+                            ${med.frequency ? ` | Frequency: ${escapeHtml(med.frequency)}` : ''}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeMedication(${index})">
+                        Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            // Check expiration
+            if (Date.now() >= expirationTime) {
+                alert('This form has expired. Please request a new QR code from hospital staff.');
+                return;
+            }
+
+            // Gather form data
+            const formData = {
+                patientId,
+                patientName: document.getElementById('patientName').value.trim(),
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                patientPhone: document.getElementById('patientPhone').value.trim(),
+                homePharmacy: document.getElementById('homePharmacy').value.trim(),
+                pharmacyPhone: document.getElementById('pharmacyPhone').value.trim(),
+                pharmacyFax: document.getElementById('pharmacyFax').value.trim(),
+                pharmacyAddress: document.getElementById('pharmacyAddress').value.trim(),
+                allergies: document.getElementById('allergies').value.trim(),
+                additionalNotes: document.getElementById('additionalNotes').value.trim(),
+                medications
+            };
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Sending...';
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show success
+                    document.getElementById('formView').classList.add('hidden');
+                    document.getElementById('successView').classList.remove('hidden');
+                    clearInterval(timerInterval);
+                } else {
+                    throw new Error(result.message || 'Submission failed');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('Unable to submit form. Please try again or ask staff for assistance.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '✓ Submit Medication Information';
+            }
+        }
+    </script>
+</body>
+</html>

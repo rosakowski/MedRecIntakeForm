@@ -1,0 +1,31 @@
+{
+  "name": "medrec-intake-system",
+  "version": "1.0.0",
+  "description": "HIPAA-ready medication intake system with zero data storage architecture",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required - static HTML + serverless functions'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "hipaa",
+    "medication",
+    "healthcare",
+    "pharmacy",
+    "secure",
+    "serverless"
+  ],
+  "author": "Select Medical IT Security",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
