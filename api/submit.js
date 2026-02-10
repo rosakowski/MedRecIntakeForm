@@ -203,7 +203,7 @@ function generateEmailHtml(data) {
 <body>
   <div class="header">
     <h1>🏥 Home Medication Intake</h1>
-    <p>Select Medical - SRH Frisco Pharmacy</p>
+    <p>Hospital System - Main Campus Pharmacy</p>
   </div>
   
   <div class="content">
@@ -284,7 +284,7 @@ function generateEmailText(data) {
     : 'No medications reported';
   
   return `HOME MEDICATION INTAKE FORM
-Select Medical - SRH Frisco Pharmacy
+Hospital System - Main Campus Pharmacy
 ================================
 
 Submission Time: ${timestamp}

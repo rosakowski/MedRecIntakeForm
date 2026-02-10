@@ -75,7 +75,7 @@ The MedRec Intake System is a secure web application that allows healthcare staf
          │ Encrypted Email
          ▼
 ┌─────────────────┐
-│   SRH Frisco    │
+│   Main Campus   │
 │   Pharmacy      │
 └─────────────────┘
 ```
@@ -156,7 +156,7 @@ Before you begin, ensure you have:
    - Generate an API key
 
 4. **Domain with Email** (for receiving submissions)
-   - Must be able to receive emails at `SRHFriscoPharmacy@selectmedical.com`
+   - Must be able to receive emails at `pharmacy@hospital.org`
    - Or configure a different recipient email
 
 ---
@@ -197,7 +197,7 @@ nano .env  # or use your preferred editor
 
 ```bash
 RESEND_API_KEY=re_your_actual_api_key_here
-RECIPIENT_EMAIL=SRHFriscoPharmacy@selectmedical.com
+RECIPIENT_EMAIL=pharmacy@hospital.org
 ```
 
 **Optional environment variables** (with defaults):
@@ -261,7 +261,7 @@ In production, restrict to your actual domain:
 ALLOWED_ORIGINS=https://medrec.selectmedical.com
 
 # Multiple domains
-ALLOWED_ORIGINS=https://medrec.selectmedical.com,https://intake.srh-frisco.com
+ALLOWED_ORIGINS=https://medrec.hospital.org,https://intake.hospital.org
 
 # Development (allows Vercel preview URLs)
 ALLOWED_ORIGINS=https://*.vercel.app
@@ -360,7 +360,7 @@ Follow the prompts:
    - Submits securely
 
 5. **Receive Submission**:
-   - Email arrives at `SRHFriscoPharmacy@selectmedical.com`
+   - Email arrives at `pharmacy@hospital.org`
    - Contains all form data in formatted HTML
    - Reply-to address set to patient's email (if provided)
 
@@ -883,7 +883,7 @@ This system is designed for simplicity and security. Additional features should 
 
 ## 📄 License
 
-**UNLICENSED** - This software is proprietary to Select Medical and is not licensed for external use, modification, or distribution.
+**UNLICENSED** - This software is proprietary to the Hospital System and is not licensed for external use, modification, or distribution.
 
 ---
 
@@ -909,5 +909,5 @@ Built with security-first principles for healthcare environments. Designed to me
 ---
 
 **Last Updated**: 2025-01-15  
-**Maintained By**: Select Medical IT Security Team  
+**Maintained By**: Hospital IT Security Team  
 **Review Date**: [To be scheduled annually]

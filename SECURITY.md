@@ -4,7 +4,7 @@
 
 **Version:** 1.0.0  
 **Classification:** Internal - For IT Security Review  
-**Prepared for:** Select Medical Hospital IT Security Team  
+**Prepared for:** Hospital IT Security Team  
 
 ---
 

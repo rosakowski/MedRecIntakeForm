@@ -16,7 +16,7 @@
     "secure",
     "serverless"
   ],
-  "author": "Select Medical IT Security",
+  "author": "Hospital IT Security",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
